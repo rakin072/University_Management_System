@@ -178,10 +178,10 @@ class UserLoginIntegrationTest {
         // Act
         UserDetails userDetails = userDetailsService.loadUserByUsername(STUDENT_USERNAME);
 
-        // Assert: student account should have elevated admin-level access in this config
+        // Assert: student account should have student-level access
         assertTrue(userDetails.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN")),
-                "Student must have ROLE_ADMIN for cross-role access in test environment");
+                .anyMatch(a -> a.getAuthority().equals("ROLE_STUDENT")),
+                "Student must have ROLE_STUDENT authority in test environment");
     }
 }
 
