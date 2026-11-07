@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Portal - UMS</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header class="header">
+    <h1>University Management System - Student Portal</h1>
+    <div id="navBar">
+      <div id="authActions" style="display: flex;">
+        <span id="userInfoDisplay" class="user-badge">
+          <span>User: <strong id="sNavUser">student</strong></span>
+          <span class="badge badge-student">STUDENT</span>
+        </span>
+        <a href="/index.html" class="btn btn-secondary" style="margin-right: 8px;">Portal Home</a>
+        <button onclick="handleLogout()" class="btn btn-secondary">Logout</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="portal-header">
+      <div>
+        <h2>Student Portal</h2>
+        <p class="subtitle">Student operations restricted to student records only</p>
+      </div>
+      <span class="badge badge-student">Student Privileges</span>
+    </div>
+
+    <div class="alert alert-info">
+      <strong>Access Scope:</strong> Student CRUD operations only. You have <strong>no access</strong> to Teacher or Administrator operations.
+    </div>
+
+    <!-- My Student Profile -->
+    <section class="card">
+      <h3>My Student Profile</h3>
+      <table class="profile-table">
+        <tr><th>Username</th><td id="sProfUsername">-</td></tr>
+        <tr><th>Full Name</th><td id="sProfFullName">-</td></tr>
+        <tr><th>Email</th><td id="sProfEmail">-</td></tr>
+        <tr><th>Program</th><td id="sProfProgram">-</td></tr>
+        <tr><th>Batch</th><td id="sProfBatch">-</td></tr>
+      </table>
+    </section>
+
+    <!-- Student CRUD Section -->
+    <section class="card">
+      <h3>Student Management (CRUD)</h3>
+      <p class="subtitle">You can view student records. Only administrators can create, edit, or delete records.</p>
+
+      <div class="table-container">
+        <table id="studentPortalTable">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Username</th>
+              <th>Full Name</th>
+              <th>Email</th>
+              <th>Program</th>
+              <th>Batch</th>
+            </tr>
+          </thead>
+          <tbody id="studentPortalTbody">
+            <tr><td colspan="6">Loading students...</td></tr>
+          </tbody>
+        </table>
+    </section>
+  </main>
+
+  <script src="/js/app.js"></script>
+  <script>
+    window.addEventListener('DOMContentLoaded', async () => {
+      try {
+        const res = await fetch('/api/auth/me', { credentials: 'include' });
+        const data = await res.json();
+        if (!data.authenticated || (data.primaryRole !== 'STUDENT' && data.primaryRole !== 'ADMIN')) {
+          window.location.replace('/index.html');
+          return;
+        }
+        currentUser = data;
+        currentRole = data.primaryRole;
+        const navU = document.getElementById('sNavUser');
+        if (navU) navU.textContent = data.username;
+        loadStudentView();
+      } catch (e) {
+        window.location.replace('/index.html');
+      }
+    });
+  </script>
+</body>
+</html>

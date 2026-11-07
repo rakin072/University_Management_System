@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>University Management System</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+  <!-- Top Header & Navigation -->
+  <header class="header">
+    <h1>University Management System</h1>
+    <div id="navBar">
+      <span id="authStatusText">Not Logged In</span>
+      <div id="authActions" style="display: none;">
+        <span id="userInfoDisplay" class="user-badge"></span>
+        <button id="logoutBtn" onclick="handleLogout()" class="btn btn-secondary">Logout</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <!-- ======================================================== -->
+    <!-- 1. LOGIN SECTION (KEPT FIRST - ONLY VIEW VISIBLE INITIALLY) -->
+    <!-- ======================================================== -->
+    <div id="loginView">
+      <div class="card login-card">
+        <h2>User Login</h2>
+        <p class="subtitle">Please sign in to access the system.</p>
+
+        <form id="loginForm" onsubmit="submitLogin(event)">
+          <div class="form-group">
+            <label for="loginUser">Username:</label>
+            <input type="text" id="loginUser" required placeholder="Enter username" autocomplete="username">
+          </div>
+          <div class="form-group">
+            <label for="loginPass">Password:</label>
+            <input type="password" id="loginPass" required placeholder="Enter password" autocomplete="current-password">
+          </div>
+          <button type="submit" class="btn btn-primary" id="loginSubmitBtn">Sign In</button>
+        </form>
+
+        <div id="loginMessage" class="alert alert-error" style="display: none;"></div>
+
+        <fieldset class="quick-login-box">
+          <legend><strong>Quick Demo Login</strong></legend>
+          <div class="quick-buttons">
+            <button type="button" class="btn-demo" onclick="quickLogin('admin', 'admin123')">
+              <strong>Admin</strong><br><small>admin / admin123</small>
+            </button>
+            <button type="button" class="btn-demo" onclick="quickLogin('teacher', 'teacher123')">
+              <strong>Teacher</strong><br><small>teacher / teacher123</small>
+            </button>
+            <button type="button" class="btn-demo" onclick="quickLogin('student', 'student123')">
+              <strong>Student</strong><br><small>student / student123</small>
+            </button>
+          </div>
+        </fieldset>
+      </div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- 2. ADMIN VIEW (CRUD ON ADMIN, TEACHER, AND STUDENT)     -->
+    <!-- ======================================================== -->
+    <div id="adminView" style="display: none;">
+      <div class="portal-header">
+        <div>
+          <h2>Administrator Dashboard</h2>
+          <p class="subtitle">Complete CRUD access on Students, Teachers, and Administrators</p>
+        </div>
+        <span class="badge badge-admin">Admin Privileges</span>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <div class="tab-nav">
+        <button type="button" class="tab-btn active" id="tabBtnStudents" onclick="switchAdminTab('students', this)">Students CRUD</button>
+        <button type="button" class="tab-btn" id="tabBtnTeachers" onclick="switchAdminTab('teachers', this)">Teachers CRUD</button>
+        <button type="button" class="tab-btn" id="tabBtnAdmins" onclick="switchAdminTab('admins', this)">Admins CRUD</button>
+        <button type="button" class="tab-btn" id="tabBtnAll" onclick="switchAdminTab('all', this)">Show All</button>
+      </div>
+
+      <!-- 2A. STUDENT CRUD -->
+      <section id="adminSectionStudents" class="card admin-tab-content">
+        <h3>Student Management</h3>
+        <p class="subtitle">Create, view, update, and delete student records.</p>
+
+        <div class="table-container">
+          <table id="studentsTable">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Username</th>
+                <th>Full Name</th>
+                <th>Email</th>
+                <th>Program</th>
+                <th>Batch</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="studentsTbody">
+              <tr><td colspan="7">Loading students...</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="form-card">
+          <h4 id="studentFormHeading">Add New Student</h4>
+          <form id="studentForm" onsubmit="saveStudent(event)">
+            <input type="hidden" id="studentId">
+            <div class="form-grid">
+              <div class="form-group" id="studentUsernameRow">
+                <label for="studentUsername">Username: *</label>
+                <input type="text" id="studentUsername" required placeholder="e.g. rahim26">
+              </div>
+              <div class="form-group">
+                <label for="studentFullName">Full Name: *</label>
+                <input type="text" id="studentFullName" required placeholder="e.g. Rahim Uddin">
+              </div>
+              <div class="form-group">
+                <label for="studentEmail">Email: *</label>
+                <input type="email" id="studentEmail" required placeholder="e.g. rahim@univ.edu">
+              </div>
+              <div class="form-group">
+                <label for="studentProgram">Program: *</label>
+                <input type="text" id="studentProgram" required placeholder="e.g. B.Sc. in CSE">
+              </div>
+              <div class="form-group">
+                <label for="studentBatch">Batch Year: *</label>
+                <input type="number" id="studentBatch" required placeholder="e.g. 2026">
+              </div>
+              <div class="form-group">
+                <label for="studentPassword">Password: <span id="studentPassReq">*</span></label>
+                <input type="password" id="studentPassword" required placeholder="Enter password">
+                <span id="studentPassNote" class="field-note" style="display:none;">(leave blank to keep current)</span>
+              </div>
+            </div>
+            <div class="form-actions">
+              <button type="submit" id="studentSubmitBtn" class="btn btn-primary" style="width: auto;">Save Student</button>
+              <button type="button" id="studentCancelBtn" class="btn btn-cancel" onclick="resetStudentForm()" style="display:none;">Cancel Edit</button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- 2B. TEACHER CRUD -->
+      <section id="adminSectionTeachers" class="card admin-tab-content">
+        <h3>Teacher Management</h3>
+        <p class="subtitle">Create, view, update, and delete faculty teacher records.</p>
+
+        <div class="table-container">
+          <table id="teachersTable">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Username</th>
+                <th>Full Name</th>
+                <th>Email</th>
+                <th>Department</th>
+                <th>Designation</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="teachersTbody">
+              <tr><td colspan="7">Loading teachers...</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="form-card">
+          <h4 id="teacherFormHeading">Add New Teacher</h4>
+          <form id="teacherForm" onsubmit="saveTeacher(event)">
+            <input type="hidden" id="teacherId">
+            <div class="form-grid">
+              <div class="form-group" id="teacherUsernameRow">
+                <label for="teacherUsername">Username: *</label>
+                <input type="text" id="teacherUsername" required placeholder="e.g. turing">
+              </div>
+              <div class="form-group">
+                <label for="teacherFullName">Full Name: *</label>
+                <input type="text" id="teacherFullName" required placeholder="e.g. Dr. Alan Turing">
+              </div>
+              <div class="form-group">
+                <label for="teacherEmail">Email: *</label>
+                <input type="email" id="teacherEmail" required placeholder="e.g. turing@univ.edu">
+              </div>
+              <div class="form-group">
+                <label for="teacherDepartment">Department: *</label>
+                <input type="text" id="teacherDepartment" required placeholder="e.g. CSE">
+              </div>
+              <div class="form-group">
+                <label for="teacherDesignation">Designation: *</label>
+                <input type="text" id="teacherDesignation" required placeholder="e.g. Professor">
+              </div>
+              <div class="form-group">
+                <label for="teacherPassword">Password: <span id="teacherPassReq">*</span></label>
+                <input type="password" id="teacherPassword" required placeholder="Enter password">
+                <span id="teacherPassNote" class="field-note" style="display:none;">(leave blank to keep current)</span>
+              </div>
+            </div>
+            <div class="form-actions">
+              <button type="submit" id="teacherSubmitBtn" class="btn btn-primary" style="width: auto;">Save Teacher</button>
+              <button type="button" id="teacherCancelBtn" class="btn btn-cancel" onclick="resetTeacherForm()" style="display:none;">Cancel Edit</button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- 2C. ADMIN CRUD -->
+      <section id="adminSectionAdmins" class="card admin-tab-content">
+        <h3>Administrator Management</h3>
+        <p class="subtitle">Create, view, update, and delete administrator accounts.</p>
+
+        <div class="table-container">
+          <table id="adminsTable">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Username</th>
+                <th>Full Name</th>
+                <th>Email</th>
+                <th>Office Number</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="adminsTbody">
+              <tr><td colspan="6">Loading admins...</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="form-card">
+          <h4 id="adminFormHeading">Add New Admin</h4>
+          <form id="adminForm" onsubmit="saveAdmin(event)">
+            <input type="hidden" id="adminId">
+            <div class="form-grid">
+              <div class="form-group" id="adminUsernameRow">
+                <label for="adminUsername">Username: *</label>
+                <input type="text" id="adminUsername" required placeholder="e.g. sysadmin">
+              </div>
+              <div class="form-group">
+                <label for="adminFullName">Full Name: *</label>
+                <input type="text" id="adminFullName" required placeholder="e.g. System Administrator">
+              </div>
+              <div class="form-group">
+                <label for="adminEmail">Email: *</label>
+                <input type="email" id="adminEmail" required placeholder="e.g. admin@univ.edu">
+              </div>
+              <div class="form-group">
+                <label for="adminOfficeNumber">Office Number: *</label>
+                <input type="text" id="adminOfficeNumber" required placeholder="e.g. Room 101">
+              </div>
+              <div class="form-group">
+                <label for="adminPassword">Password: <span id="adminPassReq">*</span></label>
+                <input type="password" id="adminPassword" required placeholder="Enter password">
+                <span id="adminPassNote" class="field-note" style="display:none;">(leave blank to keep current)</span>
+              </div>
+            </div>
+            <div class="form-actions">
+              <button type="submit" id="adminSubmitBtn" class="btn btn-primary" style="width: auto;">Save Admin</button>
+              <button type="button" id="adminCancelBtn" class="btn btn-cancel" onclick="resetAdminForm()" style="display:none;">Cancel Edit</button>
+            </div>
+          </form>
+        </div>
+      </section>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- 3. TEACHER VIEW (CRUD ON TEACHER ONLY)                  -->
+    <!-- ======================================================== -->
+    <div id="teacherView" style="display: none;">
+      <div class="portal-header">
+        <div>
+          <h2>Teacher Portal</h2>
+          <p class="subtitle">Access your profile and manage teacher records.</p>
+        </div>
+        <span class="badge badge-teacher">Teacher Privileges</span>
+      </div>
+
+      <div class="alert alert-info">
+        <strong>Access Scope:</strong> Teacher CRUD operations only. You have <strong>no access</strong> to Student or Administrator operations.
+      </div>
+
+      <!-- Profile Card -->
+      <section class="card">
+        <h3>My Teacher Profile</h3>
+        <table class="profile-table">
+          <tr><th>Username</th><td id="tProfUsername">-</td></tr>
+          <tr><th>Full Name</th><td id="tProfFullName">-</td></tr>
+          <tr><th>Email</th><td id="tProfEmail">-</td></tr>
+          <tr><th>Department</th><td id="tProfDepartment">-</td></tr>
+          <tr><th>Designation</th><td id="tProfDesignation">-</td></tr>
+        </table>
+      </section>
+
+      <!-- Teacher CRUD Operations -->
+      <section class="card">
+        <h3>Teacher Management (CRUD)</h3>
+        <p class="subtitle">You can view teacher records. Only administrators can create, edit, or delete records.</p>
+
+        <div class="table-container">
+          <table id="teacherPortalTable">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Username</th>
+                <th>Full Name</th>
+                <th>Email</th>
+                <th>Department</th>
+                <th>Designation</th>
+              </tr>
+            </thead>
+            <tbody id="teacherPortalTbody">
+              <tr><td colspan="6">Loading teachers...</td></tr>
+            </tbody>
+          </table>
+      </section>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- 4. STUDENT VIEW (CRUD ON STUDENT ONLY)                  -->
+    <!-- ======================================================== -->
+    <div id="studentView" style="display: none;">
+      <div class="portal-header">
+        <div>
+          <h2>Student Portal</h2>
+          <p class="subtitle">Access your profile and manage student records.</p>
+        </div>
+        <span class="badge badge-student">Student Privileges</span>
+      </div>
+
+      <div class="alert alert-info">
+        <strong>Access Scope:</strong> Student CRUD operations only. You have <strong>no access</strong> to Teacher or Administrator operations.
+      </div>
+
+      <!-- Profile Card -->
+      <section class="card">
+        <h3>My Student Profile</h3>
+        <table class="profile-table">
+          <tr><th>Username</th><td id="sProfUsername">-</td></tr>
+          <tr><th>Full Name</th><td id="sProfFullName">-</td></tr>
+          <tr><th>Email</th><td id="sProfEmail">-</td></tr>
+          <tr><th>Program</th><td id="sProfProgram">-</td></tr>
+          <tr><th>Batch</th><td id="sProfBatch">-</td></tr>
+        </table>
+      </section>
+
+      <!-- Student CRUD Operations -->
+      <section class="card">
+        <h3>Student Management (CRUD)</h3>
+        <p class="subtitle">You can view student records. Only administrators can create, edit, or delete records.</p>
+
+        <div class="table-container">
+          <table id="studentPortalTable">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Username</th>
+                <th>Full Name</th>
+                <th>Email</th>
+                <th>Program</th>
+                <th>Batch</th>
+              </tr>
+            </thead>
+            <tbody id="studentPortalTbody">
+              <tr><td colspan="6">Loading students...</td></tr>
+            </tbody>
+          </table>
+      </section>
+    </div>
+
+  </main>
+
+  <script src="/js/app.js"></script>
+</body>
+</html>

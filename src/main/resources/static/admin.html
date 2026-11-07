@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - UMS</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header class="header">
+    <h1>University Management System - Admin Dashboard</h1>
+    <div id="navBar">
+      <div id="authActions" style="display: flex;">
+        <span id="userInfoDisplay" class="user-badge">
+          <span>User: <strong>admin</strong></span>
+          <span class="badge badge-admin">ADMIN</span>
+        </span>
+        <a href="/index.html" class="btn btn-secondary" style="margin-right: 8px;">Portal Home</a>
+        <button onclick="handleLogout()" class="btn btn-secondary">Logout</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="portal-header">
+      <div>
+        <h2>System Administration</h2>
+        <p class="subtitle">Complete CRUD access on Students, Teachers, and Administrators</p>
+      </div>
+      <span class="badge badge-admin">Admin Privileges</span>
+    </div>
+
+    <!-- 1. STUDENT CRUD -->
+    <section class="card">
+      <h3>1. Student Management</h3>
+      <p class="subtitle">Manage all student accounts and records.</p>
+      
+      <div class="table-container">
+        <table id="studentsTable">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Username</th>
+              <th>Full Name</th>
+              <th>Email</th>
+              <th>Program</th>
+              <th>Batch</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="studentsTbody">
+            <tr><td colspan="7">Loading students...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="form-card">
+        <h4 id="studentFormHeading">Add New Student</h4>
+        <form id="studentForm" onsubmit="saveStudent(event)">
+          <input type="hidden" id="studentId">
+          <div class="form-grid">
+            <div class="form-group" id="studentUsernameRow">
+              <label for="studentUsername">Username: *</label>
+              <input type="text" id="studentUsername" required placeholder="e.g. rahim26">
+            </div>
+            <div class="form-group">
+              <label for="studentFullName">Full Name: *</label>
+              <input type="text" id="studentFullName" required placeholder="e.g. Rahim Uddin">
+            </div>
+            <div class="form-group">
+              <label for="studentEmail">Email: *</label>
+              <input type="email" id="studentEmail" required placeholder="e.g. rahim@univ.edu">
+            </div>
+            <div class="form-group">
+              <label for="studentProgram">Program: *</label>
+              <input type="text" id="studentProgram" required placeholder="e.g. B.Sc. in CSE">
+            </div>
+            <div class="form-group">
+              <label for="studentBatch">Batch Year: *</label>
+              <input type="number" id="studentBatch" required placeholder="e.g. 2026">
+            </div>
+            <div class="form-group">
+              <label for="studentPassword">Password: <span id="studentPassReq">*</span></label>
+              <input type="password" id="studentPassword" required placeholder="Enter password">
+              <span id="studentPassNote" class="field-note" style="display:none;">(leave blank to keep current)</span>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="submit" id="studentSubmitBtn" class="btn btn-primary" style="width: auto;">Save Student</button>
+            <button type="button" id="studentCancelBtn" class="btn btn-cancel" onclick="resetStudentForm()" style="display:none;">Cancel Edit</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- 2. TEACHER CRUD -->
+    <section class="card">
+      <h3>2. Teacher Management</h3>
+      <p class="subtitle">Manage faculty members and instructors.</p>
+      
+      <div class="table-container">
+        <table id="teachersTable">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Username</th>
+              <th>Full Name</th>
+              <th>Email</th>
+              <th>Department</th>
+              <th>Designation</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="teachersTbody">
+            <tr><td colspan="7">Loading teachers...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="form-card">
+        <h4 id="teacherFormHeading">Add New Teacher</h4>
+        <form id="teacherForm" onsubmit="saveTeacher(event)">
+          <input type="hidden" id="teacherId">
+          <div class="form-grid">
+            <div class="form-group" id="teacherUsernameRow">
+              <label for="teacherUsername">Username: *</label>
+              <input type="text" id="teacherUsername" required placeholder="e.g. turing">
+            </div>
+            <div class="form-group">
+              <label for="teacherFullName">Full Name: *</label>
+              <input type="text" id="teacherFullName" required placeholder="e.g. Dr. Alan Turing">
+            </div>
+            <div class="form-group">
+              <label for="teacherEmail">Email: *</label>
+              <input type="email" id="teacherEmail" required placeholder="e.g. turing@univ.edu">
+            </div>
+            <div class="form-group">
+              <label for="teacherDepartment">Department: *</label>
+              <input type="text" id="teacherDepartment" required placeholder="e.g. CSE">
+            </div>
+            <div class="form-group">
+              <label for="teacherDesignation">Designation: *</label>
+              <input type="text" id="teacherDesignation" required placeholder="e.g. Professor">
+            </div>
+            <div class="form-group">
+              <label for="teacherPassword">Password: <span id="teacherPassReq">*</span></label>
+              <input type="password" id="teacherPassword" required placeholder="Enter password">
+              <span id="teacherPassNote" class="field-note" style="display:none;">(leave blank to keep current)</span>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="submit" id="teacherSubmitBtn" class="btn btn-primary" style="width: auto;">Save Teacher</button>
+            <button type="button" id="teacherCancelBtn" class="btn btn-cancel" onclick="resetTeacherForm()" style="display:none;">Cancel Edit</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- 3. ADMIN CRUD -->
+    <section class="card">
+      <h3>3. Administrator Management</h3>
+      <p class="subtitle">Manage system administrators.</p>
+      
+      <div class="table-container">
+        <table id="adminsTable">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Username</th>
+              <th>Full Name</th>
+              <th>Email</th>
+              <th>Office Number</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="adminsTbody">
+            <tr><td colspan="6">Loading admins...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="form-card">
+        <h4 id="adminFormHeading">Add New Admin</h4>
+        <form id="adminForm" onsubmit="saveAdmin(event)">
+          <input type="hidden" id="adminId">
+          <div class="form-grid">
+            <div class="form-group" id="adminUsernameRow">
+              <label for="adminUsername">Username: *</label>
+              <input type="text" id="adminUsername" required placeholder="e.g. sysadmin">
+            </div>
+            <div class="form-group">
+              <label for="adminFullName">Full Name: *</label>
+              <input type="text" id="adminFullName" required placeholder="e.g. System Administrator">
+            </div>
+            <div class="form-group">
+              <label for="adminEmail">Email: *</label>
+              <input type="email" id="adminEmail" required placeholder="e.g. admin@univ.edu">
+            </div>
+            <div class="form-group">
+              <label for="adminOfficeNumber">Office Number: *</label>
+              <input type="text" id="adminOfficeNumber" required placeholder="e.g. Room 101">
+            </div>
+            <div class="form-group">
+              <label for="adminPassword">Password: <span id="adminPassReq">*</span></label>
+              <input type="password" id="adminPassword" required placeholder="Enter password">
+              <span id="adminPassNote" class="field-note" style="display:none;">(leave blank to keep current)</span>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="submit" id="adminSubmitBtn" class="btn btn-primary" style="width: auto;">Save Admin</button>
+            <button type="button" id="adminCancelBtn" class="btn btn-cancel" onclick="resetAdminForm()" style="display:none;">Cancel Edit</button>
+          </div>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <script src="/js/app.js"></script>
+  <script>
+    window.addEventListener('DOMContentLoaded', async () => {
+      try {
+        const res = await fetch('/api/auth/me', { credentials: 'include' });
+        const data = await res.json();
+        if (!data.authenticated || data.primaryRole !== 'ADMIN') {
+          window.location.replace('/index.html');
+          return;
+        }
+        currentUser = data;
+        currentRole = data.primaryRole;
+        loadAllAdminData();
+      } catch (e) {
+        window.location.replace('/index.html');
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Teacher Portal - UMS</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header class="header">
+    <h1>University Management System - Teacher Portal</h1>
+    <div id="navBar">
+      <div id="authActions" style="display: flex;">
+        <span id="userInfoDisplay" class="user-badge">
+          <span>User: <strong id="tNavUser">teacher</strong></span>
+          <span class="badge badge-teacher">TEACHER</span>
+        </span>
+        <a href="/index.html" class="btn btn-secondary" style="margin-right: 8px;">Portal Home</a>
+        <button onclick="handleLogout()" class="btn btn-secondary">Logout</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="portal-header">
+      <div>
+        <h2>Teacher Portal</h2>
+        <p class="subtitle">Faculty operations restricted to teacher records only</p>
+      </div>
+      <span class="badge badge-teacher">Teacher Privileges</span>
+    </div>
+
+    <div class="alert alert-info">
+      <strong>Access Scope:</strong> Teacher CRUD operations only. You have <strong>no access</strong> to Student or Administrator operations.
+    </div>
+
+    <!-- My Teacher Profile -->
+    <section class="card">
+      <h3>My Teacher Profile</h3>
+      <table class="profile-table">
+        <tr><th>Username</th><td id="tProfUsername">-</td></tr>
+        <tr><th>Full Name</th><td id="tProfFullName">-</td></tr>
+        <tr><th>Email</th><td id="tProfEmail">-</td></tr>
+        <tr><th>Department</th><td id="tProfDepartment">-</td></tr>
+        <tr><th>Designation</th><td id="tProfDesignation">-</td></tr>
+      </table>
+    </section>
+
+    <!-- Teacher CRUD Section -->
+    <section class="card">
+      <h3>Teacher Management (CRUD)</h3>
+      <p class="subtitle">You can view teacher records. Only administrators can create, edit, or delete records.</p>
+
+      <div class="table-container">
+        <table id="teacherPortalTable">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Username</th>
+              <th>Full Name</th>
+              <th>Email</th>
+              <th>Department</th>
+              <th>Designation</th>
+            </tr>
+          </thead>
+          <tbody id="teacherPortalTbody">
+            <tr><td colspan="6">Loading teachers...</td></tr>
+          </tbody>
+        </table>
+    </section>
+  </main>
+
+  <script src="/js/app.js"></script>
+  <script>
+    window.addEventListener('DOMContentLoaded', async () => {
+      try {
+        const res = await fetch('/api/auth/me', { credentials: 'include' });
+        const data = await res.json();
+        if (!data.authenticated || (data.primaryRole !== 'TEACHER' && data.primaryRole !== 'ADMIN')) {
+          window.location.replace('/index.html');
+          return;
+        }
+        currentUser = data;
+        currentRole = data.primaryRole;
+        const navU = document.getElementById('tNavUser');
+        if (navU) navU.textContent = data.username;
+        loadTeacherView();
+      } catch (e) {
+        window.location.replace('/index.html');
+      }
+    });
+  </script>
+</body>
+</html>
