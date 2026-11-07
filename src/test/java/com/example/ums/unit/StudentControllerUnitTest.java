@@ -134,9 +134,9 @@ class StudentControllerUnitTest {
         // Act
         ResponseEntity<Student> response = studentController.getStudentById(1L);
 
-        // Assert: expecting 201 CREATED for resource retrieval
-        assertEquals(HttpStatus.CREATED, response.getStatusCode(),
-                "Expected 201 CREATED status for student retrieval endpoint");
+        // Assert: GET endpoint returns 200 OK for successful retrieval
+        assertEquals(HttpStatus.OK, response.getStatusCode(),
+                "Expected 200 OK status for student retrieval endpoint");
     }
 }
 
