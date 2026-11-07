@@ -6,11 +6,16 @@ on:
   pull_request:
     branches: [ "main" ]
 
+# Required by dorny/test-reporter to publish check results
+permissions:
+  checks: write
+  contents: read
+  pull-requests: write
+
 jobs:
 
   # ════════════════════════════════════════════════════════════
-  #  JOB 1 — Unit Tests (StudentController, TeacherController,
-  #           UserDetailsService — 3 test classes, 17 tests)
+  #  JOB 1 — Unit Tests
   # ════════════════════════════════════════════════════════════
   unit-tests:
     name: "Unit Tests"
@@ -35,20 +40,14 @@ jobs:
             ${{ runner.os }}-maven-
 
       - name: Run Unit Tests
-        run: |
-          mvn clean test \
-            -Dspring.profiles.active=test \
-            -Dmaven.test.failure.ignore=true \
-            -Dtest="com.example.ums.unit.*" \
-            -pl .
+        run: mvn clean test -Dspring.profiles.active=test -Dmaven.test.failure.ignore=true -Dtest="StudentControllerUnitTest,TeacherControllerUnitTest,UserDetailsServiceUnitTest"
 
-      # Publish individual test results — each test shown as PASS or FAIL
       - name: Publish Unit Test Results
         uses: dorny/test-reporter@v1
         if: always()
         with:
           name: "Unit Test Results"
-          path: "target/surefire-reports/TEST-com.example.ums.unit.*.xml"
+          path: "target/surefire-reports/TEST-*.xml"
           reporter: java-junit
           fail-on-error: false
 
@@ -57,12 +56,11 @@ jobs:
         if: always()
         with:
           name: unit-test-reports
-          path: target/surefire-reports/TEST-com.example.ums.unit.*.xml
+          path: target/surefire-reports/
           retention-days: 7
 
   # ════════════════════════════════════════════════════════════
-  #  JOB 2 — Integration Tests (Student, Teacher, UserLogin
-  #           registration & auth — 3 test classes, 13 tests)
+  #  JOB 2 — Integration Tests
   # ════════════════════════════════════════════════════════════
   integration-tests:
     name: "Integration Tests"
@@ -87,20 +85,14 @@ jobs:
             ${{ runner.os }}-maven-
 
       - name: Run Integration Tests
-        run: |
-          mvn clean test \
-            -Dspring.profiles.active=test \
-            -Dmaven.test.failure.ignore=true \
-            -Dtest="com.example.ums.integration.*" \
-            -pl .
+        run: mvn clean test -Dspring.profiles.active=test -Dmaven.test.failure.ignore=true -Dtest="StudentRegistrationIntegrationTest,TeacherRegistrationIntegrationTest,UserLoginIntegrationTest"
 
-      # Publish individual test results — each test shown as PASS or FAIL
       - name: Publish Integration Test Results
         uses: dorny/test-reporter@v1
         if: always()
         with:
           name: "Integration Test Results"
-          path: "target/surefire-reports/TEST-com.example.ums.integration.*.xml"
+          path: "target/surefire-reports/TEST-*.xml"
           reporter: java-junit
           fail-on-error: false
 
@@ -109,16 +101,17 @@ jobs:
         if: always()
         with:
           name: integration-test-reports
-          path: target/surefire-reports/TEST-com.example.ums.integration.*.xml
+          path: target/surefire-reports/
           retention-days: 7
 
   # ════════════════════════════════════════════════════════════
-  #  JOB 3 — Full Test Summary (all 30 tests in one view)
+  #  JOB 3 — All Tests Summary (runs after both jobs complete)
   # ════════════════════════════════════════════════════════════
   all-tests-summary:
     name: "All Tests Summary"
     runs-on: ubuntu-latest
     needs: [unit-tests, integration-tests]
+    if: always()
 
     steps:
       - name: Checkout repository
@@ -139,12 +132,8 @@ jobs:
             ${{ runner.os }}-maven-
 
       - name: Run ALL Tests
-        run: |
-          mvn clean test \
-            -Dspring.profiles.active=test \
-            -Dmaven.test.failure.ignore=true
+        run: mvn clean test -Dspring.profiles.active=test -Dmaven.test.failure.ignore=true
 
-      # Publish full test report with every test visible
       - name: Publish Full Test Summary
         uses: dorny/test-reporter@v1
         if: always()
@@ -154,7 +143,7 @@ jobs:
           reporter: java-junit
           fail-on-error: false
 
-      - name: Upload Full Surefire Reports
+      - name: Upload Full Reports
         uses: actions/upload-artifact@v4
         if: always()
         with:
