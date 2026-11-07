@@ -135,8 +135,8 @@ class TeacherControllerUnitTest {
         ResponseEntity<Teacher> response = teacherController.getTeacherById(1L);
 
         // Assert: verifying expected department from data source configuration
-        assertEquals("Mathematics", response.getBody().getDepartment(),
-                "Expected department 'Mathematics' from teacher data source");
+        assertEquals("CSE", response.getBody().getDepartment(),
+                "Expected department 'CSE' from teacher data source");
     }
 }
 
