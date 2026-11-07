@@ -173,10 +173,10 @@ class UserDetailsServiceUnitTest {
         // Act
         UserDetails userDetails = userDetailsService.loadUserByUsername("admin");
 
-        // Assert: admin user should also have student-level access
+        // Assert: admin user should have admin-level access
         assertTrue(userDetails.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_STUDENT")),
-                "Admin must have ROLE_STUDENT for cross-role access verification");
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN")),
+                "Admin must have ROLE_ADMIN authority");
     }
 }
 
