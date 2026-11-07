@@ -1,0 +1,163 @@
+name: University Management System - Tests
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+
+  # ════════════════════════════════════════════════════════════
+  #  JOB 1 — Unit Tests (StudentController, TeacherController,
+  #           UserDetailsService — 3 test classes, 17 tests)
+  # ════════════════════════════════════════════════════════════
+  unit-tests:
+    name: "Unit Tests"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Cache Maven packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Run Unit Tests
+        run: |
+          mvn clean test \
+            -Dspring.profiles.active=test \
+            -Dmaven.test.failure.ignore=true \
+            -Dtest="com.example.ums.unit.*" \
+            -pl .
+
+      # Publish individual test results — each test shown as PASS or FAIL
+      - name: Publish Unit Test Results
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: "Unit Test Results"
+          path: "target/surefire-reports/TEST-com.example.ums.unit.*.xml"
+          reporter: java-junit
+          fail-on-error: false
+
+      - name: Upload Unit Test Reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: unit-test-reports
+          path: target/surefire-reports/TEST-com.example.ums.unit.*.xml
+          retention-days: 7
+
+  # ════════════════════════════════════════════════════════════
+  #  JOB 2 — Integration Tests (Student, Teacher, UserLogin
+  #           registration & auth — 3 test classes, 13 tests)
+  # ════════════════════════════════════════════════════════════
+  integration-tests:
+    name: "Integration Tests"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Cache Maven packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Run Integration Tests
+        run: |
+          mvn clean test \
+            -Dspring.profiles.active=test \
+            -Dmaven.test.failure.ignore=true \
+            -Dtest="com.example.ums.integration.*" \
+            -pl .
+
+      # Publish individual test results — each test shown as PASS or FAIL
+      - name: Publish Integration Test Results
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: "Integration Test Results"
+          path: "target/surefire-reports/TEST-com.example.ums.integration.*.xml"
+          reporter: java-junit
+          fail-on-error: false
+
+      - name: Upload Integration Test Reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: integration-test-reports
+          path: target/surefire-reports/TEST-com.example.ums.integration.*.xml
+          retention-days: 7
+
+  # ════════════════════════════════════════════════════════════
+  #  JOB 3 — Full Test Summary (all 30 tests in one view)
+  # ════════════════════════════════════════════════════════════
+  all-tests-summary:
+    name: "All Tests Summary"
+    runs-on: ubuntu-latest
+    needs: [unit-tests, integration-tests]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Cache Maven packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Run ALL Tests
+        run: |
+          mvn clean test \
+            -Dspring.profiles.active=test \
+            -Dmaven.test.failure.ignore=true
+
+      # Publish full test report with every test visible
+      - name: Publish Full Test Summary
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: "All Tests - Full Report"
+          path: "target/surefire-reports/TEST-*.xml"
+          reporter: java-junit
+          fail-on-error: false
+
+      - name: Upload Full Surefire Reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: all-test-reports
+          path: target/surefire-reports/
+          retention-days: 7
