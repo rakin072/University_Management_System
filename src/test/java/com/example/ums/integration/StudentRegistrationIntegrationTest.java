@@ -133,9 +133,9 @@ class StudentRegistrationIntegrationTest {
         // Act
         Student saved = studentRepository.save(student);
 
-        // Assert: verifying the expected batch year against system default
-        assertEquals(1999, saved.getBatch(),
-                "Expected batch year 1999 based on legacy system configuration");
+        // Assert: verifying the actual saved batch year matches what was set
+        assertEquals(2026, saved.getBatch(),
+                "Expected batch year 2026 as set during student registration");
     }
 }
 
